@@ -62,4 +62,21 @@ module ForgeSdk
     SOURCE      = "source"
     UNSPECIFIED  = "unspecified"
   end
+
+  # Barcode symbology type.
+  module BarcodeType
+    QR      = "qr"
+    CODE128 = "code128"
+    EAN13   = "ean13"
+    UPCA    = "upca"
+    CODE39  = "code39"
+  end
+
+  # Anchor position for barcode placement.
+  module BarcodeAnchor
+    TOP_LEFT     = "top-left"
+    TOP_RIGHT    = "top-right"
+    BOTTOM_LEFT  = "bottom-left"
+    BOTTOM_RIGHT = "bottom-right"
+  end
 end

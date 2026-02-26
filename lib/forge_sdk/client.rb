@@ -221,6 +221,27 @@ module ForgeSdk
       self
     end
 
+    def pdf_watermark_pages(pages)
+      @options[:pdf_watermark_pages] = pages
+      self
+    end
+
+    def pdf_barcode(type:, data:, x: nil, y: nil, width: nil, height: nil, anchor: nil, foreground: nil, background: nil, draw_background: nil, pages: nil)
+      @options[:pdf_barcodes] ||= []
+      entry = { type: type, data: data }
+      entry[:x] = x if x
+      entry[:y] = y if y
+      entry[:width] = width if width
+      entry[:height] = height if height
+      entry[:anchor] = anchor if anchor
+      entry[:foreground] = foreground if foreground
+      entry[:background] = background if background
+      entry[:draw_background] = draw_background unless draw_background.nil?
+      entry[:pages] = pages if pages
+      @options[:pdf_barcodes] << entry
+      self
+    end
+
     def pdf_standard(s)
       @options[:pdf_standard] = s
       self
@@ -261,11 +282,13 @@ module ForgeSdk
       has_watermark = @options[:pdf_watermark_text] || @options[:pdf_watermark_image] ||
                       @options[:pdf_watermark_opacity] || @options[:pdf_watermark_rotation] ||
                       @options[:pdf_watermark_color] || @options[:pdf_watermark_font_size] ||
-                      @options[:pdf_watermark_scale] || @options[:pdf_watermark_layer]
+                      @options[:pdf_watermark_scale] || @options[:pdf_watermark_layer] ||
+                      @options[:pdf_watermark_pages]
 
       has_pdf = @options[:pdf_title] || @options[:pdf_author] || @options[:pdf_subject] ||
                 @options[:pdf_keywords] || @options[:pdf_creator] || !@options[:pdf_bookmarks].nil? ||
-                has_watermark || @options[:pdf_standard] || @options[:pdf_embedded_files]
+                has_watermark || @options[:pdf_standard] || @options[:pdf_embedded_files] ||
+                @options[:pdf_barcodes]
       if has_pdf
         p = {}
         p[:title] = @options[:pdf_title] if @options[:pdf_title]
@@ -285,7 +308,11 @@ module ForgeSdk
           wm[:font_size] = @options[:pdf_watermark_font_size] if @options[:pdf_watermark_font_size]
           wm[:scale] = @options[:pdf_watermark_scale] if @options[:pdf_watermark_scale]
           wm[:layer] = @options[:pdf_watermark_layer] if @options[:pdf_watermark_layer]
+          wm[:pages] = @options[:pdf_watermark_pages] if @options[:pdf_watermark_pages]
           p[:watermark] = wm
+        end
+        if @options[:pdf_barcodes]
+          p[:barcodes] = @options[:pdf_barcodes]
         end
         if @options[:pdf_embedded_files]
           p[:embedded_files] = @options[:pdf_embedded_files].map do |ef|
