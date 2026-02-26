@@ -78,4 +78,49 @@ class TestRenderRequest < Minitest::Test
     payload = req.build_payload
     refute payload.key?(:quantize)
   end
+
+  def test_pdf_options_payload
+    req = @client.render_html("<h1>Invoice</h1>")
+      .format(ForgeSdk::OutputFormat::PDF)
+      .pdf_title("Invoice #1234")
+      .pdf_author("Centrix ERP")
+      .pdf_subject("Monthly invoice")
+      .pdf_keywords("invoice,billing,2026")
+      .pdf_creator("Forge Renderer")
+      .pdf_bookmarks(true)
+
+    payload = req.build_payload
+    p = payload[:pdf]
+
+    assert_equal "Invoice #1234", p[:title]
+    assert_equal "Centrix ERP", p[:author]
+    assert_equal "Monthly invoice", p[:subject]
+    assert_equal "invoice,billing,2026", p[:keywords]
+    assert_equal "Forge Renderer", p[:creator]
+    assert_equal true, p[:bookmarks]
+  end
+
+  def test_partial_pdf_options
+    req = @client.render_html("<h1>Doc</h1>")
+      .pdf_title("My Document")
+      .pdf_bookmarks(false)
+
+    payload = req.build_payload
+    p = payload[:pdf]
+
+    assert_equal "My Document", p[:title]
+    assert_equal false, p[:bookmarks]
+    refute p.key?(:author)
+    refute p.key?(:subject)
+    refute p.key?(:keywords)
+    refute p.key?(:creator)
+  end
+
+  def test_no_pdf_when_unset
+    req = @client.render_html("<p>test</p>")
+      .format(ForgeSdk::OutputFormat::PDF)
+
+    payload = req.build_payload
+    refute payload.key?(:pdf)
+  end
 end

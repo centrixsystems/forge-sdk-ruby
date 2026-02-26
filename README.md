@@ -78,6 +78,25 @@ img = client.render_html("<h1>Brand</h1>")
   .execute
 ```
 
+### PDF Metadata
+
+Set PDF document properties such as title, author, and keywords.
+
+```ruby
+pdf = client.render_html("<h1>Invoice #1234</h1>")
+  .format(ForgeSdk::OutputFormat::PDF)
+  .paper("a4")
+  .pdf_title("Invoice #1234")
+  .pdf_author("Centrix ERP")
+  .pdf_subject("Monthly invoice")
+  .pdf_keywords("invoice,billing,2026")
+  .pdf_creator("Forge Renderer")
+  .pdf_bookmarks(true)
+  .execute
+
+File.binwrite("invoice.pdf", pdf)
+```
+
 ### Custom Timeout
 
 ```ruby
@@ -123,6 +142,12 @@ All methods return `self` for chaining. Call `.execute` to send the request.
 | `colors` | `Integer` | Quantization color count (2-256) |
 | `palette` | `String \| Array` | Preset string or array of hex color strings |
 | `dither` | `String` | Dithering algorithm |
+| `pdf_title` | `String` | PDF document title |
+| `pdf_author` | `String` | PDF document author |
+| `pdf_subject` | `String` | PDF document subject |
+| `pdf_keywords` | `String` | PDF keywords (comma-separated) |
+| `pdf_creator` | `String` | PDF creator application name |
+| `pdf_bookmarks` | `Boolean` | Generate PDF bookmarks from headings |
 
 | Terminal Method | Returns | Description |
 |-----------------|---------|-------------|

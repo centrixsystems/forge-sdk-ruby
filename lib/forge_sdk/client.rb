@@ -151,6 +151,36 @@ module ForgeSdk
       self
     end
 
+    def pdf_title(t)
+      @options[:pdf_title] = t
+      self
+    end
+
+    def pdf_author(a)
+      @options[:pdf_author] = a
+      self
+    end
+
+    def pdf_subject(s)
+      @options[:pdf_subject] = s
+      self
+    end
+
+    def pdf_keywords(k)
+      @options[:pdf_keywords] = k
+      self
+    end
+
+    def pdf_creator(c)
+      @options[:pdf_creator] = c
+      self
+    end
+
+    def pdf_bookmarks(b)
+      @options[:pdf_bookmarks] = b
+      self
+    end
+
     # Build the payload hash.
     # @return [Hash]
     def build_payload
@@ -174,6 +204,19 @@ module ForgeSdk
         q[:palette] = @options[:palette] if @options[:palette]
         q[:dither] = @options[:dither] if @options[:dither]
         payload[:quantize] = q
+      end
+
+      has_pdf = @options[:pdf_title] || @options[:pdf_author] || @options[:pdf_subject] ||
+                @options[:pdf_keywords] || @options[:pdf_creator] || !@options[:pdf_bookmarks].nil?
+      if has_pdf
+        p = {}
+        p[:title] = @options[:pdf_title] if @options[:pdf_title]
+        p[:author] = @options[:pdf_author] if @options[:pdf_author]
+        p[:subject] = @options[:pdf_subject] if @options[:pdf_subject]
+        p[:keywords] = @options[:pdf_keywords] if @options[:pdf_keywords]
+        p[:creator] = @options[:pdf_creator] if @options[:pdf_creator]
+        p[:bookmarks] = @options[:pdf_bookmarks] unless @options[:pdf_bookmarks].nil?
+        payload[:pdf] = p
       end
 
       payload
