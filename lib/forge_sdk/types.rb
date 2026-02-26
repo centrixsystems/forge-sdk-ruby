@@ -40,4 +40,10 @@ module ForgeSdk
     GRAYSCALE   = "grayscale"
     EINK        = "eink"
   end
+
+  # Watermark layer position.
+  module WatermarkLayer
+    OVER  = "over"
+    UNDER = "under"
+  end
 end

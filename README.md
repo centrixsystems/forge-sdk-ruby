@@ -97,6 +97,20 @@ pdf = client.render_html("<h1>Invoice #1234</h1>")
 File.binwrite("invoice.pdf", pdf)
 ```
 
+### PDF Watermarks
+
+Add text or image watermarks to each page.
+
+```ruby
+pdf = client.render_html("<h1>Draft Report</h1>")
+  .pdf_watermark_text("DRAFT")
+  .pdf_watermark_opacity(0.15)
+  .pdf_watermark_rotation(-45)
+  .pdf_watermark_color("#888888")
+  .pdf_watermark_layer(ForgeSdk::WatermarkLayer::OVER)
+  .execute
+```
+
 ### Custom Timeout
 
 ```ruby
@@ -148,6 +162,14 @@ All methods return `self` for chaining. Call `.execute` to send the request.
 | `pdf_keywords` | `String` | PDF keywords (comma-separated) |
 | `pdf_creator` | `String` | PDF creator application name |
 | `pdf_bookmarks` | `Boolean` | Generate PDF bookmarks from headings |
+| `pdf_watermark_text` | `String` | Watermark text on each page |
+| `pdf_watermark_image` | `String` | Base64-encoded PNG/JPEG watermark image |
+| `pdf_watermark_opacity` | `Numeric` | Watermark opacity (0.0-1.0, default: 0.15) |
+| `pdf_watermark_rotation` | `Numeric` | Watermark rotation in degrees (default: -45) |
+| `pdf_watermark_color` | `String` | Watermark text color as hex (default: #888888) |
+| `pdf_watermark_font_size` | `Numeric` | Watermark font size in PDF points (default: auto) |
+| `pdf_watermark_scale` | `Numeric` | Watermark image scale (0.0-1.0, default: 0.5) |
+| `pdf_watermark_layer` | `String` | Layer position: `OVER` or `UNDER` |
 
 | Terminal Method | Returns | Description |
 |-----------------|---------|-------------|
@@ -162,6 +184,7 @@ All methods return `self` for chaining. Call `.execute` to send the request.
 | `ForgeSdk::Flow` | `AUTO`, `PAGINATE`, `CONTINUOUS` |
 | `ForgeSdk::DitherMethod` | `NONE`, `FLOYD_STEINBERG`, `ATKINSON`, `ORDERED` |
 | `ForgeSdk::Palette` | `AUTO`, `BLACK_WHITE`, `GRAYSCALE`, `EINK` |
+| `ForgeSdk::WatermarkLayer` | `OVER`, `UNDER` |
 
 ### Errors
 

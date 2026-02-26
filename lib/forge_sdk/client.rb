@@ -181,6 +181,46 @@ module ForgeSdk
       self
     end
 
+    def pdf_watermark_text(t)
+      @options[:pdf_watermark_text] = t
+      self
+    end
+
+    def pdf_watermark_image(base64_data)
+      @options[:pdf_watermark_image] = base64_data
+      self
+    end
+
+    def pdf_watermark_opacity(o)
+      @options[:pdf_watermark_opacity] = o
+      self
+    end
+
+    def pdf_watermark_rotation(d)
+      @options[:pdf_watermark_rotation] = d
+      self
+    end
+
+    def pdf_watermark_color(c)
+      @options[:pdf_watermark_color] = c
+      self
+    end
+
+    def pdf_watermark_font_size(s)
+      @options[:pdf_watermark_font_size] = s
+      self
+    end
+
+    def pdf_watermark_scale(s)
+      @options[:pdf_watermark_scale] = s
+      self
+    end
+
+    def pdf_watermark_layer(l)
+      @options[:pdf_watermark_layer] = l
+      self
+    end
+
     # Build the payload hash.
     # @return [Hash]
     def build_payload
@@ -206,8 +246,14 @@ module ForgeSdk
         payload[:quantize] = q
       end
 
+      has_watermark = @options[:pdf_watermark_text] || @options[:pdf_watermark_image] ||
+                      @options[:pdf_watermark_opacity] || @options[:pdf_watermark_rotation] ||
+                      @options[:pdf_watermark_color] || @options[:pdf_watermark_font_size] ||
+                      @options[:pdf_watermark_scale] || @options[:pdf_watermark_layer]
+
       has_pdf = @options[:pdf_title] || @options[:pdf_author] || @options[:pdf_subject] ||
-                @options[:pdf_keywords] || @options[:pdf_creator] || !@options[:pdf_bookmarks].nil?
+                @options[:pdf_keywords] || @options[:pdf_creator] || !@options[:pdf_bookmarks].nil? ||
+                has_watermark
       if has_pdf
         p = {}
         p[:title] = @options[:pdf_title] if @options[:pdf_title]
@@ -216,6 +262,18 @@ module ForgeSdk
         p[:keywords] = @options[:pdf_keywords] if @options[:pdf_keywords]
         p[:creator] = @options[:pdf_creator] if @options[:pdf_creator]
         p[:bookmarks] = @options[:pdf_bookmarks] unless @options[:pdf_bookmarks].nil?
+        if has_watermark
+          wm = {}
+          wm[:text] = @options[:pdf_watermark_text] if @options[:pdf_watermark_text]
+          wm[:image_data] = @options[:pdf_watermark_image] if @options[:pdf_watermark_image]
+          wm[:opacity] = @options[:pdf_watermark_opacity] if @options[:pdf_watermark_opacity]
+          wm[:rotation] = @options[:pdf_watermark_rotation] if @options[:pdf_watermark_rotation]
+          wm[:color] = @options[:pdf_watermark_color] if @options[:pdf_watermark_color]
+          wm[:font_size] = @options[:pdf_watermark_font_size] if @options[:pdf_watermark_font_size]
+          wm[:scale] = @options[:pdf_watermark_scale] if @options[:pdf_watermark_scale]
+          wm[:layer] = @options[:pdf_watermark_layer] if @options[:pdf_watermark_layer]
+          p[:watermark] = wm
+        end
         payload[:pdf] = p
       end
 
