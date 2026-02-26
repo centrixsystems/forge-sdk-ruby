@@ -46,4 +46,20 @@ module ForgeSdk
     OVER  = "over"
     UNDER = "under"
   end
+
+  # PDF standard compliance level.
+  module PdfStandard
+    NONE = "none"
+    A2B  = "pdf/a-2b"
+    A3B  = "pdf/a-3b"
+  end
+
+  # Relationship of an embedded file to the PDF document.
+  module EmbedRelationship
+    ALTERNATIVE = "alternative"
+    SUPPLEMENT  = "supplement"
+    DATA        = "data"
+    SOURCE      = "source"
+    UNSPECIFIED  = "unspecified"
+  end
 end

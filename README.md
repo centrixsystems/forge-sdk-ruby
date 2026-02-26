@@ -111,6 +111,35 @@ pdf = client.render_html("<h1>Draft Report</h1>")
   .execute
 ```
 
+### PDF/A Archival Output
+
+Generate PDF/A-compliant documents for long-term archiving.
+
+```ruby
+pdf = client.render_html("<h1>Archival Report</h1>")
+  .pdf_standard(ForgeSdk::PdfStandard::A2B)
+  .pdf_title("Archival Report")
+  .execute
+```
+
+### Embedded Files (ZUGFeRD/Factur-X)
+
+Attach files to PDF output. Requires PDF/A-3b for embedded file attachments.
+
+```ruby
+require "base64"
+
+xml_data = Base64.strict_encode64(File.binread("factur-x.xml"))
+
+pdf = client.render_html("<h1>Invoice #1234</h1>")
+  .pdf_standard(ForgeSdk::PdfStandard::A3B)
+  .pdf_attach("factur-x.xml", xml_data,
+    mime_type: "text/xml",
+    description: "Factur-X invoice",
+    relationship: ForgeSdk::EmbedRelationship::ALTERNATIVE)
+  .execute
+```
+
 ### Custom Timeout
 
 ```ruby
@@ -170,6 +199,8 @@ All methods return `self` for chaining. Call `.execute` to send the request.
 | `pdf_watermark_font_size` | `Numeric` | Watermark font size in PDF points (default: auto) |
 | `pdf_watermark_scale` | `Numeric` | Watermark image scale (0.0-1.0, default: 0.5) |
 | `pdf_watermark_layer` | `String` | Layer position: `OVER` or `UNDER` |
+| `pdf_standard` | `String` | PDF standard: `NONE`, `A2B`, `A3B` |
+| `pdf_attach` | `String, String, **opts` | Embed file: path, base64 data, mime_type:, description:, relationship: |
 
 | Terminal Method | Returns | Description |
 |-----------------|---------|-------------|
@@ -185,6 +216,8 @@ All methods return `self` for chaining. Call `.execute` to send the request.
 | `ForgeSdk::DitherMethod` | `NONE`, `FLOYD_STEINBERG`, `ATKINSON`, `ORDERED` |
 | `ForgeSdk::Palette` | `AUTO`, `BLACK_WHITE`, `GRAYSCALE`, `EINK` |
 | `ForgeSdk::WatermarkLayer` | `OVER`, `UNDER` |
+| `ForgeSdk::PdfStandard` | `NONE`, `A2B`, `A3B` |
+| `ForgeSdk::EmbedRelationship` | `ALTERNATIVE`, `SUPPLEMENT`, `DATA`, `SOURCE`, `UNSPECIFIED` |
 
 ### Errors
 

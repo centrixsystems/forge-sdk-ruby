@@ -221,6 +221,18 @@ module ForgeSdk
       self
     end
 
+    def pdf_standard(s)
+      @options[:pdf_standard] = s
+      self
+    end
+
+    def pdf_attach(path, base64_data, mime_type: nil, description: nil, relationship: nil)
+      @options[:pdf_embedded_files] ||= []
+      @options[:pdf_embedded_files] << { path: path, data: base64_data, mime_type: mime_type,
+                                         description: description, relationship: relationship }
+      self
+    end
+
     # Build the payload hash.
     # @return [Hash]
     def build_payload
@@ -253,7 +265,7 @@ module ForgeSdk
 
       has_pdf = @options[:pdf_title] || @options[:pdf_author] || @options[:pdf_subject] ||
                 @options[:pdf_keywords] || @options[:pdf_creator] || !@options[:pdf_bookmarks].nil? ||
-                has_watermark
+                has_watermark || @options[:pdf_standard] || @options[:pdf_embedded_files]
       if has_pdf
         p = {}
         p[:title] = @options[:pdf_title] if @options[:pdf_title]
@@ -262,6 +274,7 @@ module ForgeSdk
         p[:keywords] = @options[:pdf_keywords] if @options[:pdf_keywords]
         p[:creator] = @options[:pdf_creator] if @options[:pdf_creator]
         p[:bookmarks] = @options[:pdf_bookmarks] unless @options[:pdf_bookmarks].nil?
+        p[:standard] = @options[:pdf_standard] if @options[:pdf_standard]
         if has_watermark
           wm = {}
           wm[:text] = @options[:pdf_watermark_text] if @options[:pdf_watermark_text]
@@ -273,6 +286,15 @@ module ForgeSdk
           wm[:scale] = @options[:pdf_watermark_scale] if @options[:pdf_watermark_scale]
           wm[:layer] = @options[:pdf_watermark_layer] if @options[:pdf_watermark_layer]
           p[:watermark] = wm
+        end
+        if @options[:pdf_embedded_files]
+          p[:embedded_files] = @options[:pdf_embedded_files].map do |ef|
+            h = { path: ef[:path], data: ef[:data] }
+            h[:mime_type] = ef[:mime_type] if ef[:mime_type]
+            h[:description] = ef[:description] if ef[:description]
+            h[:relationship] = ef[:relationship] if ef[:relationship]
+            h
+          end
         end
         payload[:pdf] = p
       end
