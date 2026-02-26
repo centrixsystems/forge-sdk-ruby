@@ -10,7 +10,7 @@ module ForgeSdk
     # @param base_url [String] Forge server base URL
     # @param timeout [Integer] HTTP timeout in seconds (default: 120)
     def initialize(base_url, timeout: 120)
-      @base_url = base_url.chomp("/")
+      @base_url = base_url.sub(%r{/+\z}, "")
       @timeout = timeout
     end
 
@@ -179,9 +179,9 @@ module ForgeSdk
       payload
     end
 
-    # Send the render request.
+    # Send the render request and return raw output bytes.
     # @return [String] raw binary output
-    def send
+    def execute
       @client.send_render(build_payload)
     end
   end
