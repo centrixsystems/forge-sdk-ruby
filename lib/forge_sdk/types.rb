@@ -63,6 +63,20 @@ module ForgeSdk
     UNSPECIFIED  = "unspecified"
   end
 
+  # PDF rendering mode.
+  module PdfMode
+    AUTO   = "auto"
+    VECTOR = "vector"
+    RASTER = "raster"
+  end
+
+  # PDF accessibility level.
+  module AccessibilityLevel
+    NONE    = "none"
+    BASIC   = "basic"
+    PDF_UA_1 = "pdf/ua-1"
+  end
+
   # Barcode symbology type.
   module BarcodeType
     QR      = "qr"

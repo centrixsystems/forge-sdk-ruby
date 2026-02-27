@@ -249,4 +249,156 @@ class TestRenderRequest < Minitest::Test
     assert_equal "qr", pdf[:barcodes][0][:type]
     assert_equal "bottom-left", pdf[:barcodes][0][:anchor]
   end
+
+  def test_pdf_mode_constants
+    assert_equal "auto", ForgeSdk::PdfMode::AUTO
+    assert_equal "vector", ForgeSdk::PdfMode::VECTOR
+    assert_equal "raster", ForgeSdk::PdfMode::RASTER
+  end
+
+  def test_accessibility_level_constants
+    assert_equal "none", ForgeSdk::AccessibilityLevel::NONE
+    assert_equal "basic", ForgeSdk::AccessibilityLevel::BASIC
+    assert_equal "pdf/ua-1", ForgeSdk::AccessibilityLevel::PDF_UA_1
+  end
+
+  def test_pdf_mode_payload
+    req = @client.render_html("<h1>Doc</h1>")
+      .pdf_mode(ForgeSdk::PdfMode::VECTOR)
+
+    payload = req.build_payload
+    pdf = payload[:pdf]
+
+    assert_equal "vector", pdf[:mode]
+  end
+
+  def test_pdf_signature_payload
+    req = @client.render_html("<h1>Contract</h1>")
+      .pdf_sign_certificate("base64cert")
+      .pdf_sign_password("secret")
+      .pdf_sign_name("Jane Doe")
+      .pdf_sign_reason("Approval")
+      .pdf_sign_location("New York")
+      .pdf_sign_timestamp_url("https://tsa.example.com")
+
+    payload = req.build_payload
+    sig = payload[:pdf][:signature]
+
+    assert_equal "base64cert", sig[:certificate_data]
+    assert_equal "secret", sig[:password]
+    assert_equal "Jane Doe", sig[:signer_name]
+    assert_equal "Approval", sig[:reason]
+    assert_equal "New York", sig[:location]
+    assert_equal "https://tsa.example.com", sig[:timestamp_url]
+  end
+
+  def test_pdf_partial_signature
+    req = @client.render_html("<h1>Doc</h1>")
+      .pdf_sign_certificate("base64cert")
+      .pdf_sign_name("Signer")
+
+    payload = req.build_payload
+    sig = payload[:pdf][:signature]
+
+    assert_equal "base64cert", sig[:certificate_data]
+    assert_equal "Signer", sig[:signer_name]
+    refute sig.key?(:password)
+    refute sig.key?(:reason)
+    refute sig.key?(:location)
+    refute sig.key?(:timestamp_url)
+  end
+
+  def test_pdf_encryption_payload
+    req = @client.render_html("<h1>Secret</h1>")
+      .pdf_user_password("user123")
+      .pdf_owner_password("owner456")
+      .pdf_permissions(["print", "copy"])
+
+    payload = req.build_payload
+    enc = payload[:pdf][:encryption]
+
+    assert_equal "user123", enc[:user_password]
+    assert_equal "owner456", enc[:owner_password]
+    assert_equal ["print", "copy"], enc[:permissions]
+  end
+
+  def test_pdf_partial_encryption
+    req = @client.render_html("<h1>Doc</h1>")
+      .pdf_owner_password("owner-only")
+
+    payload = req.build_payload
+    enc = payload[:pdf][:encryption]
+
+    assert_equal "owner-only", enc[:owner_password]
+    refute enc.key?(:user_password)
+    refute enc.key?(:permissions)
+  end
+
+  def test_pdf_accessibility_payload
+    req = @client.render_html("<h1>Accessible</h1>")
+      .pdf_accessibility(ForgeSdk::AccessibilityLevel::PDF_UA_1)
+
+    payload = req.build_payload
+    pdf = payload[:pdf]
+
+    assert_equal "pdf/ua-1", pdf[:accessibility]
+  end
+
+  def test_pdf_linearize_true
+    req = @client.render_html("<h1>Doc</h1>")
+      .pdf_linearize(true)
+
+    payload = req.build_payload
+    pdf = payload[:pdf]
+
+    assert_equal true, pdf[:linearize]
+  end
+
+  def test_pdf_linearize_false
+    req = @client.render_html("<h1>Doc</h1>")
+      .pdf_linearize(false)
+
+    payload = req.build_payload
+    pdf = payload[:pdf]
+
+    assert_equal false, pdf[:linearize]
+  end
+
+  def test_no_signature_when_unset
+    req = @client.render_html("<h1>Doc</h1>")
+      .pdf_title("Title only")
+
+    payload = req.build_payload
+    pdf = payload[:pdf]
+
+    refute pdf.key?(:signature)
+    refute pdf.key?(:encryption)
+    refute pdf.key?(:mode)
+    refute pdf.key?(:accessibility)
+    refute pdf.key?(:linearize)
+  end
+
+  def test_all_new_pdf_options_combined
+    req = @client.render_html("<h1>Full</h1>")
+      .pdf_title("Full Doc")
+      .pdf_mode(ForgeSdk::PdfMode::RASTER)
+      .pdf_sign_certificate("cert")
+      .pdf_sign_name("Signer")
+      .pdf_owner_password("owner")
+      .pdf_permissions(["print"])
+      .pdf_accessibility(ForgeSdk::AccessibilityLevel::BASIC)
+      .pdf_linearize(true)
+
+    payload = req.build_payload
+    pdf = payload[:pdf]
+
+    assert_equal "Full Doc", pdf[:title]
+    assert_equal "raster", pdf[:mode]
+    assert_equal "cert", pdf[:signature][:certificate_data]
+    assert_equal "Signer", pdf[:signature][:signer_name]
+    assert_equal "owner", pdf[:encryption][:owner_password]
+    assert_equal ["print"], pdf[:encryption][:permissions]
+    assert_equal "basic", pdf[:accessibility]
+    assert_equal true, pdf[:linearize]
+  end
 end

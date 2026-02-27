@@ -181,6 +181,11 @@ module ForgeSdk
       self
     end
 
+    def pdf_page_numbers(b)
+      @options[:pdf_page_numbers] = b
+      self
+    end
+
     def pdf_watermark_text(t)
       @options[:pdf_watermark_text] = t
       self
@@ -242,6 +247,66 @@ module ForgeSdk
       self
     end
 
+    def pdf_mode(mode)
+      @options[:pdf_mode] = mode
+      self
+    end
+
+    def pdf_sign_certificate(data)
+      @options[:pdf_sign_certificate] = data
+      self
+    end
+
+    def pdf_sign_password(pw)
+      @options[:pdf_sign_password] = pw
+      self
+    end
+
+    def pdf_sign_name(name)
+      @options[:pdf_sign_name] = name
+      self
+    end
+
+    def pdf_sign_reason(reason)
+      @options[:pdf_sign_reason] = reason
+      self
+    end
+
+    def pdf_sign_location(loc)
+      @options[:pdf_sign_location] = loc
+      self
+    end
+
+    def pdf_sign_timestamp_url(url)
+      @options[:pdf_sign_timestamp_url] = url
+      self
+    end
+
+    def pdf_user_password(pw)
+      @options[:pdf_user_password] = pw
+      self
+    end
+
+    def pdf_owner_password(pw)
+      @options[:pdf_owner_password] = pw
+      self
+    end
+
+    def pdf_permissions(perms)
+      @options[:pdf_permissions] = perms
+      self
+    end
+
+    def pdf_accessibility(level)
+      @options[:pdf_accessibility] = level
+      self
+    end
+
+    def pdf_linearize(enabled)
+      @options[:pdf_linearize] = enabled
+      self
+    end
+
     def pdf_standard(s)
       @options[:pdf_standard] = s
       self
@@ -285,10 +350,19 @@ module ForgeSdk
                       @options[:pdf_watermark_scale] || @options[:pdf_watermark_layer] ||
                       @options[:pdf_watermark_pages]
 
+      has_signature = @options[:pdf_sign_certificate] || @options[:pdf_sign_password] ||
+                      @options[:pdf_sign_name] || @options[:pdf_sign_reason] ||
+                      @options[:pdf_sign_location] || @options[:pdf_sign_timestamp_url]
+
+      has_encryption = @options[:pdf_user_password] || @options[:pdf_owner_password] ||
+                       @options[:pdf_permissions]
+
       has_pdf = @options[:pdf_title] || @options[:pdf_author] || @options[:pdf_subject] ||
                 @options[:pdf_keywords] || @options[:pdf_creator] || !@options[:pdf_bookmarks].nil? ||
+                !@options[:pdf_page_numbers].nil? ||
                 has_watermark || @options[:pdf_standard] || @options[:pdf_embedded_files] ||
-                @options[:pdf_barcodes]
+                @options[:pdf_barcodes] || @options[:pdf_mode] || has_signature ||
+                has_encryption || @options[:pdf_accessibility] || !@options[:pdf_linearize].nil?
       if has_pdf
         p = {}
         p[:title] = @options[:pdf_title] if @options[:pdf_title]
@@ -297,7 +371,9 @@ module ForgeSdk
         p[:keywords] = @options[:pdf_keywords] if @options[:pdf_keywords]
         p[:creator] = @options[:pdf_creator] if @options[:pdf_creator]
         p[:bookmarks] = @options[:pdf_bookmarks] unless @options[:pdf_bookmarks].nil?
+        p[:page_numbers] = @options[:pdf_page_numbers] unless @options[:pdf_page_numbers].nil?
         p[:standard] = @options[:pdf_standard] if @options[:pdf_standard]
+        p[:mode] = @options[:pdf_mode] if @options[:pdf_mode]
         if has_watermark
           wm = {}
           wm[:text] = @options[:pdf_watermark_text] if @options[:pdf_watermark_text]
@@ -311,6 +387,23 @@ module ForgeSdk
           wm[:pages] = @options[:pdf_watermark_pages] if @options[:pdf_watermark_pages]
           p[:watermark] = wm
         end
+        if has_signature
+          sig = {}
+          sig[:certificate_data] = @options[:pdf_sign_certificate] if @options[:pdf_sign_certificate]
+          sig[:password] = @options[:pdf_sign_password] if @options[:pdf_sign_password]
+          sig[:signer_name] = @options[:pdf_sign_name] if @options[:pdf_sign_name]
+          sig[:reason] = @options[:pdf_sign_reason] if @options[:pdf_sign_reason]
+          sig[:location] = @options[:pdf_sign_location] if @options[:pdf_sign_location]
+          sig[:timestamp_url] = @options[:pdf_sign_timestamp_url] if @options[:pdf_sign_timestamp_url]
+          p[:signature] = sig
+        end
+        if has_encryption
+          enc = {}
+          enc[:user_password] = @options[:pdf_user_password] if @options[:pdf_user_password]
+          enc[:owner_password] = @options[:pdf_owner_password] if @options[:pdf_owner_password]
+          enc[:permissions] = @options[:pdf_permissions] if @options[:pdf_permissions]
+          p[:encryption] = enc
+        end
         if @options[:pdf_barcodes]
           p[:barcodes] = @options[:pdf_barcodes]
         end
@@ -323,6 +416,8 @@ module ForgeSdk
             h
           end
         end
+        p[:accessibility] = @options[:pdf_accessibility] if @options[:pdf_accessibility]
+        p[:linearize] = @options[:pdf_linearize] unless @options[:pdf_linearize].nil?
         payload[:pdf] = p
       end
 

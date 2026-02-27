@@ -140,6 +140,67 @@ pdf = client.render_html("<h1>Invoice #1234</h1>")
   .execute
 ```
 
+### PDF Digital Signatures
+
+Sign PDF documents with a PKCS#12 certificate.
+
+```ruby
+require "base64"
+
+cert_data = Base64.strict_encode64(File.binread("certificate.p12"))
+
+pdf = client.render_html("<h1>Signed Contract</h1>")
+  .pdf_sign_certificate(cert_data)
+  .pdf_sign_password("cert-password")
+  .pdf_sign_name("Jane Doe")
+  .pdf_sign_reason("Contract approval")
+  .pdf_sign_location("New York, NY")
+  .execute
+```
+
+### PDF Encryption
+
+Protect PDF documents with passwords and permission restrictions.
+
+```ruby
+pdf = client.render_html("<h1>Confidential Report</h1>")
+  .pdf_owner_password("owner-secret")
+  .pdf_user_password("user-secret")
+  .pdf_permissions(["print", "copy"])
+  .execute
+```
+
+### PDF Accessibility
+
+Generate accessible PDF documents.
+
+```ruby
+pdf = client.render_html("<h1>Accessible Report</h1>")
+  .pdf_accessibility(ForgeSdk::AccessibilityLevel::PDF_UA_1)
+  .pdf_bookmarks(true)
+  .execute
+```
+
+### PDF Linearization
+
+Enable fast web view for large PDF documents.
+
+```ruby
+pdf = client.render_html("<h1>Large Report</h1>")
+  .pdf_linearize(true)
+  .execute
+```
+
+### PDF Rendering Mode
+
+Control how PDF content is rendered.
+
+```ruby
+pdf = client.render_html("<h1>Vector Report</h1>")
+  .pdf_mode(ForgeSdk::PdfMode::VECTOR)
+  .execute
+```
+
 ### Custom Timeout
 
 ```ruby
@@ -191,6 +252,7 @@ All methods return `self` for chaining. Call `.execute` to send the request.
 | `pdf_keywords` | `String` | PDF keywords (comma-separated) |
 | `pdf_creator` | `String` | PDF creator application name |
 | `pdf_bookmarks` | `Boolean` | Generate PDF bookmarks from headings |
+| `pdf_page_numbers` | `Boolean` | Add "Page X of Y" footers to each page |
 | `pdf_watermark_text` | `String` | Watermark text on each page |
 | `pdf_watermark_image` | `String` | Base64-encoded PNG/JPEG watermark image |
 | `pdf_watermark_opacity` | `Numeric` | Watermark opacity (0.0-1.0, default: 0.15) |
@@ -199,6 +261,18 @@ All methods return `self` for chaining. Call `.execute` to send the request.
 | `pdf_watermark_font_size` | `Numeric` | Watermark font size in PDF points (default: auto) |
 | `pdf_watermark_scale` | `Numeric` | Watermark image scale (0.0-1.0, default: 0.5) |
 | `pdf_watermark_layer` | `String` | Layer position: `OVER` or `UNDER` |
+| `pdf_mode` | `String` | PDF rendering mode: `AUTO`, `VECTOR`, `RASTER` |
+| `pdf_sign_certificate` | `String` | Base64-encoded PKCS#12 certificate for PDF signing |
+| `pdf_sign_password` | `String` | Password for the signing certificate |
+| `pdf_sign_name` | `String` | Signer name for the digital signature |
+| `pdf_sign_reason` | `String` | Reason for signing |
+| `pdf_sign_location` | `String` | Location of signing |
+| `pdf_sign_timestamp_url` | `String` | RFC 3161 timestamp server URL |
+| `pdf_user_password` | `String` | PDF user password (restricts opening) |
+| `pdf_owner_password` | `String` | PDF owner password (restricts editing) |
+| `pdf_permissions` | `Array` | PDF permission flags |
+| `pdf_accessibility` | `String` | Accessibility level: `NONE`, `BASIC`, `PDF_UA_1` |
+| `pdf_linearize` | `Boolean` | Enable PDF linearization (fast web view) |
 | `pdf_standard` | `String` | PDF standard: `NONE`, `A2B`, `A3B` |
 | `pdf_attach` | `String, String, **opts` | Embed file: path, base64 data, mime_type:, description:, relationship: |
 
@@ -218,6 +292,8 @@ All methods return `self` for chaining. Call `.execute` to send the request.
 | `ForgeSdk::WatermarkLayer` | `OVER`, `UNDER` |
 | `ForgeSdk::PdfStandard` | `NONE`, `A2B`, `A3B` |
 | `ForgeSdk::EmbedRelationship` | `ALTERNATIVE`, `SUPPLEMENT`, `DATA`, `SOURCE`, `UNSPECIFIED` |
+| `ForgeSdk::PdfMode` | `AUTO`, `VECTOR`, `RASTER` |
+| `ForgeSdk::AccessibilityLevel` | `NONE`, `BASIC`, `PDF_UA_1` |
 
 ### Errors
 
