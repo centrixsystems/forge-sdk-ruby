@@ -273,6 +273,7 @@ All methods return `self` for chaining. Call `.execute` to send the request.
 | `pdf_permissions` | `Array` | PDF permission flags |
 | `pdf_accessibility` | `String` | Accessibility level: `NONE`, `BASIC`, `PDF_UA_1` |
 | `pdf_linearize` | `Boolean` | Enable PDF linearization (fast web view) |
+| `pdf_lang` | `String` | Document language (BCP 47 tag, e.g. `"en-US"`). Required for PDF/UA-1 |
 | `pdf_standard` | `String` | PDF standard: `NONE`, `A2B`, `A3B` |
 | `pdf_attach` | `String, String, **opts` | Embed file: path, base64 data, mime_type:, description:, relationship: |
 

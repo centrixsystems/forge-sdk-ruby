@@ -307,6 +307,11 @@ module ForgeSdk
       self
     end
 
+    def pdf_lang(lang)
+      @options[:pdf_lang] = lang
+      self
+    end
+
     def pdf_standard(s)
       @options[:pdf_standard] = s
       self
@@ -362,7 +367,8 @@ module ForgeSdk
                 !@options[:pdf_page_numbers].nil? ||
                 has_watermark || @options[:pdf_standard] || @options[:pdf_embedded_files] ||
                 @options[:pdf_barcodes] || @options[:pdf_mode] || has_signature ||
-                has_encryption || @options[:pdf_accessibility] || !@options[:pdf_linearize].nil?
+                has_encryption || @options[:pdf_accessibility] || !@options[:pdf_linearize].nil? ||
+                @options[:pdf_lang]
       if has_pdf
         p = {}
         p[:title] = @options[:pdf_title] if @options[:pdf_title]
@@ -418,6 +424,7 @@ module ForgeSdk
         end
         p[:accessibility] = @options[:pdf_accessibility] if @options[:pdf_accessibility]
         p[:linearize] = @options[:pdf_linearize] unless @options[:pdf_linearize].nil?
+        p[:document_lang] = @options[:pdf_lang] if @options[:pdf_lang]
         payload[:pdf] = p
       end
 
