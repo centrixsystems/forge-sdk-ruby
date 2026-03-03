@@ -53,6 +53,24 @@ module ForgeSdk
       resp.body.b
     end
 
+    # @api private
+    def send_render_with_warnings(payload)
+      uri = URI("#{@base_url}/render")
+      resp = make_request(:post, uri, payload.to_json)
+
+      unless resp.is_a?(Net::HTTPSuccess)
+        message = begin
+          JSON.parse(resp.body)["error"]
+        rescue StandardError
+          "HTTP #{resp.code}"
+        end
+        raise ServerError.new(resp.code.to_i, message)
+      end
+
+      warnings = resp.get_fields("X-Forge-Warning") || []
+      RenderResponse.new(data: resp.body.b, warnings: warnings)
+    end
+
     private
 
     def make_request(method, uri, body = nil)
@@ -435,6 +453,12 @@ module ForgeSdk
     # @return [String] raw binary output
     def execute
       @client.send_render(build_payload)
+    end
+
+    # Execute the render request and return the full response including warnings.
+    # @return [RenderResponse]
+    def execute_with_warnings
+      @client.send_render_with_warnings(build_payload)
     end
   end
 end

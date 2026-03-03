@@ -103,4 +103,10 @@ module ForgeSdk
     BOTTOM_LEFT  = "bottom-left"
     BOTTOM_RIGHT = "bottom-right"
   end
+
+  # Response from a render request, including any CSS compatibility warnings.
+  RenderResponse = Struct.new(:data, :warnings, keyword_init: true) do
+    # @return [String] The rendered output bytes (PDF, PNG, etc.)
+    # @return [Array<String>] CSS compatibility warnings from the Forge server
+  end
 end
